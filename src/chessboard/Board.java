@@ -39,12 +39,12 @@ public class Board {
 		return positionExists(position.getRow(), position.getColumn());
 	}
 
-	public Piece piece(int row, int column) {
+	private Piece piece(int row, int column) {
 		positionExists(row, column);
 		return pieces[row][column];
 	}
 
-	private Piece piece(Position position) {
+	public Piece piece(Position position) {
 		return piece(position.getRow(), position.getColumn());
 	}
 
