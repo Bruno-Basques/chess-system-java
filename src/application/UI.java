@@ -1,7 +1,10 @@
 package application;
 
+import java.util.Arrays;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import chess.ChessMatch;
 import chess.ChessPiece;
@@ -29,6 +32,47 @@ public class UI {
 	public static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
 	public static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
 	public static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+
+	private static void printPiece(ChessPiece[][] pieces, int row, int column, boolean backgroundColor) {
+
+		ChessPiece piece = pieces[row][column];
+
+		if (backgroundColor) {
+			System.out.print(ANSI_BLUE_BACKGROUND);
+		}
+		if (piece != null) {
+			if (piece.getColor() == Color.WHITE) {
+				System.out.print(ANSI_WHITE + piece + ANSI_RESET);
+			} else {
+				System.out.print(ANSI_YELLOW + piece + ANSI_RESET);
+			}
+		} else {
+			if (row % 2 == 0 && column % 2 == 0 || row % 2 != 0 && column % 2 != 0) {
+				System.out.print(ANSI_PURPLE + "~" + ANSI_RESET);
+			} else {
+				System.out.print(ANSI_GREEN + "-" + ANSI_RESET);
+			}
+		}
+
+		System.out.print(" ");
+	}
+	
+	private static void printCapturedPieces(List<ChessPiece> captured) {
+		List<ChessPiece> white = captured.stream().filter(x -> x.getColor() == Color.WHITE).collect(Collectors.toList());
+		List<ChessPiece> black = captured.stream().filter(x -> x.getColor() == Color.BLACK).collect(Collectors.toList());
+		
+		System.out.println("Captured pieces:");
+		
+		System.out.print("White:");
+		System.out.print(ANSI_WHITE);
+		System.out.println(Arrays.toString(white.toArray()));
+		System.out.print(ANSI_RESET);
+		
+		System.out.print("Black:");
+		System.out.print(ANSI_YELLOW);
+		System.out.println(Arrays.toString(black.toArray()));
+		System.out.print(ANSI_RESET);
+	}
 
 	// https://stackoverflow.com/questions/2979383/java-clear-the-console
 	public static void clearScreen() {
@@ -72,33 +116,11 @@ public class UI {
 		}
 		System.out.println("  a b c d e f g h");
 	}
-
-	private static void printPiece(ChessPiece[][] pieces, int row, int column, boolean backgroundColor) {
-
-		ChessPiece piece = pieces[row][column];
-
-		if (backgroundColor) {
-			System.out.print(ANSI_BLUE_BACKGROUND);
-		}
-		if (piece != null) {
-			if (piece.getColor() == Color.WHITE) {
-				System.out.print(ANSI_WHITE + piece + ANSI_RESET);
-			} else {
-				System.out.print(ANSI_YELLOW + piece + ANSI_RESET);
-			}
-		} else {
-			if (row % 2 == 0 && column % 2 == 0 || row % 2 != 0 && column % 2 != 0) {
-				System.out.print(ANSI_PURPLE + "~" + ANSI_RESET);
-			} else {
-				System.out.print(ANSI_GREEN + "-" + ANSI_RESET);
-			}
-		}
-
-		System.out.print(" ");
-	}
-
-	public static void printMatch(ChessMatch chessMatch) {
+	
+	public static void printMatch(ChessMatch chessMatch, List<ChessPiece> captured) {
 		printBoard(chessMatch.getPieces());
+		System.out.println();
+		printCapturedPieces(captured);
 		System.out.println();
 		System.out.println("Turn: " + chessMatch.getTurn());
 		System.out.println("Waiting player: " + chessMatch.getCurrentPlayer());
