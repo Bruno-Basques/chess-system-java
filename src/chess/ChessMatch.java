@@ -1,5 +1,6 @@
 package chess;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class ChessMatch {
 	private boolean check;
 	private boolean checkMate;
 	private ChessPiece enPassantVulnerable;
+	private ChessPiece promoted;
 
 	public ChessMatch() {
 		this.board = new Board(8, 8);
@@ -48,6 +50,10 @@ public class ChessMatch {
 
 	public ChessPiece getEnPassantVulnerable() {
 		return enPassantVulnerable;
+	}
+
+	public ChessPiece getPromoted() {
+		return promoted;
 	}
 
 	public boolean getCheckMate() {
@@ -84,6 +90,16 @@ public class ChessMatch {
 
 		ChessPiece movedPiece = (ChessPiece) board.piece(target);
 
+		// Special move promotion
+		promoted = null;
+		if (movedPiece instanceof Pawn) {
+			int endOfTheBoard = movedPiece.getColor() == Color.WHITE ? 0 : 7;
+			if (target.getRow() == endOfTheBoard) {
+				promoted = (ChessPiece) board.piece(target);
+				promoted = replacePromotedPiece("Q");
+			}
+		}
+
 		check = testCheck(opponent(currentPlayer)) ? true : false;
 		if (testCheckMate(opponent(currentPlayer))) {
 			checkMate = true;
@@ -99,6 +115,38 @@ public class ChessMatch {
 			enPassantVulnerable = null;
 		}
 		return (ChessPiece) capturedPiece;
+	}
+
+	public ChessPiece replacePromotedPiece(String type) {
+		if (promoted == null) {
+			throw new IllegalStateException("There is no piece to be promoted.");
+		}
+
+		ChessPiece newPiece;
+		switch (type) {
+		case "Q":
+			newPiece = new Queen(board, promoted.getColor());
+			break;
+		case "B":
+			newPiece = new Bishop(board, promoted.getColor());
+			break;
+		case "R":
+			newPiece = new Rook(board, promoted.getColor());
+			break;
+		case "N":
+			newPiece = new Knight(board, promoted.getColor());
+			break;
+		default:
+			throw new InvalidParameterException("Invalid type for promotion.");
+		}
+
+		Position pos = promoted.getChessPosition().toPosition();
+		Piece p = board.removePiece(pos);
+		piecesOnTheBoard.remove(p);
+		board.placePiece(newPiece, pos);
+		piecesOnTheBoard.add(newPiece);
+		
+		return newPiece;
 	}
 
 	private Piece makeMove(Position source, Position target) {
@@ -140,7 +188,7 @@ public class ChessMatch {
 				piecesOnTheBoard.remove(capturedPiece);
 			}
 		}
-		
+
 		return capturedPiece;
 	}
 
@@ -173,11 +221,11 @@ public class ChessMatch {
 			board.placePiece(rook, sourceRook);
 			rook.decreaseMoveCount();
 		}
-		
+
 		// Special move en passant
 		if (p instanceof Pawn) {
 			if (source.getColumn() != target.getColumn() && capturedPiece == enPassantVulnerable) {
-				ChessPiece pawn = (ChessPiece)board.removePiece(target);
+				ChessPiece pawn = (ChessPiece) board.removePiece(target);
 				int capturedPawnRow = p.getColor() == Color.WHITE ? 3 : 4;
 				Position capturedPawnPosition = new Position(capturedPawnRow, target.getColumn());
 				board.placePiece(pawn, capturedPawnPosition);
