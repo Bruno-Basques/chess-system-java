@@ -1,7 +1,5 @@
 package chess.pieces;
 
-import java.util.ArrayList;
-import java.util.List;
 import chess.ChessMatch;
 import chess.ChessPiece;
 import chess.Color;
