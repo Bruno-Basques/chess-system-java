@@ -1,6 +1,5 @@
 package chess;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -137,7 +136,7 @@ public class ChessMatch {
 			newPiece = new Knight(board, promoted.getColor());
 			break;
 		default:
-			throw new InvalidParameterException("Invalid type for promotion.");
+			newPiece = new Pawn(board, promoted.getColor(), this);
 		}
 
 		Position pos = promoted.getChessPosition().toPosition();

@@ -16,6 +16,7 @@ public class Program {
 		Scanner sc = new Scanner(System.in);
 		ChessMatch chessMatch = new ChessMatch();
 		List<ChessPiece> captured = new ArrayList<>();
+		List<String> typesForPromotion = new ArrayList<>(List.of("Q", "R", "B", "N"));
 
 		while (!chessMatch.getCheckMate()) {
 			try {
@@ -40,7 +41,12 @@ public class Program {
 
 				if (chessMatch.getPromoted() != null) {
 					System.out.print("Enter piece for promotionm (Q/R/B/N): ");
-					String type = sc.nextLine();
+					String type = sc.nextLine().toUpperCase();
+					while(!typesForPromotion.contains(type))
+					{
+						System.out.print("Invalid value! Enter piece for promotionm (Q/R/B/N): ");
+						type = sc.nextLine().toUpperCase();
+					}
 					chessMatch.replacePromotedPiece(type);
 				}
 			} catch (ChessException e) {
